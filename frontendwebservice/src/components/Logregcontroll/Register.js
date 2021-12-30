@@ -1,0 +1,76 @@
+import React, { useState, useEffect } from "react";
+import { useHistory, NavLink } from "react-router-dom";
+import UserService from "./UserService";
+
+const Register = () => {
+    const [user, setUser] = useState({ username: "", password: "", repassword: "", });
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("Invalid information, check your input");
+    const history = useHistory();
+
+    useEffect(() => {
+        const timerId = setTimeout(() => setLoading(false), 5000);
+        return () => clearTimeout(timerId);
+    }, [loading]);
+
+    const changeUserData = (e) => {
+        setUser({...user, [e.target.name]: e.target.value });
+    };
+
+    const registerUser = async(e) => {
+        e.preventDefault()
+        const data = await UserService.registerUser(user);
+        if (data !== "error") {
+            if (user.username === user.password === user.repassword) {
+                setUser(user + data,true);
+            }
+            alert(user.username + " is registered here. ")
+            history.push("/Login");
+        } else {
+            alert(error)
+            setError(error);
+            setLoading(true);
+        }
+    };
+
+    return ( <div className = "register" >
+        <form style = {{
+                width: "flex",
+                backgroundSize: "cover",
+                height: "flex",
+                margin: "auto"
+            }
+        }
+        onSubmit = { registerUser } >
+        <h3 > { loading ? "Loading..." : "Register an account" } < /h3> <input type = "text" name = "username" value = { user.username || "" } placeholder = "Username"
+        style = {
+            { background: "white", width: "flex", borderRadius: "10px", height: "20px" }
+        }
+        onChange = { changeUserData } required / ><input type = "password" name = "password" value = { user.password || "" } placeholder = "Password"
+        style = {
+            { background: "white", width: "flex", borderRadius: "10px", height: "20px" }
+        }
+        onChange = { changeUserData }
+        required autoComplete = "off" / >
+        <input type = "password"
+        name = "repassword"
+        value = { user.repassword || "" }
+        placeholder = "Re-enter Password"
+        style = {
+            { background: "white", width: "flex", borderRadius: "10px", height: "20px" }
+        }
+        onChange = { changeUserData }
+        required autoComplete = "off" / >
+        <br / >
+        <button type = "submit"
+        style = {
+            { background: "grey", width: "flex", borderRadius: "5px", height: "20px" }
+        } > Register </button>
+            <NavLink to = { "/Login" } > < p style = {
+            { color: "black", paddingBottom: "30px", marginTop: "20px" }
+        } > Already have an account, Click here < /p></NavLink >
+        </form> < /div >
+    );
+};
+
+export default Register;
